@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17) // Specifies Java 17
+    }
+}
+
+repositories {
+    mavenCentral() // Central repository for dependencies
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'          // Web starter
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // MongoDB support
+    compileOnly 'org.projectlombok:lombok'                                     // Lombok annotations
+    annotationProcessor 'org.projectlombok:lombok'                             // Lombok processor
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'            // Devtools for development
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'     // Testing dependencies
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'               // JUnit launcher
+    implementation 'org.springframework.boot:spring-boot-starter-mail'         // Spring Mail Starter
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'jakarta.mail:jakarta.mail-api:2.1.0'
+    
+}
+
+tasks.named('test') {
+    useJUnitPlatform() // Enables JUnit 5 testing platform
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs = ["-parameters"]
+}
