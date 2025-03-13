@@ -9,6 +9,7 @@ import 'package:wordex_app/rac.dart';
 import 'package:wordex_app/signup.dart';
 import 'package:wordex_app/home.dart';
 import 'package:wordex_app/summary.dart';
+import 'package:wordex_app/test.dart';
 import 'package:wordex_app/wj.dart';
 
 
@@ -16,9 +17,11 @@ import 'package:wordex_app/wj.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'login',
+    initialRoute: 'test',
     routes: {
       'login': (context) => MyLogin(),
+      'test': (context) => LetterRecognitionPage(),
+
       'signup': (context) => MySignup(),
       'loading': (context) => LoadingScreen(userDetails: ModalRoute.of(context)!.settings.arguments as Map<String, String>),
 
