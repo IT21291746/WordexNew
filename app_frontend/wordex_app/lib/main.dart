@@ -17,7 +17,7 @@ import 'package:wordex_app/wj.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'test',
+    initialRoute: 'login',
     routes: {
       'login': (context) => MyLogin(),
       'test': (context) => LetterRecognitionPage(),

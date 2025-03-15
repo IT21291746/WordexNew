@@ -175,7 +175,7 @@ Future<void> _showLocalNotification(String title, String body) async {
             ),
             // WordeX Title
             Positioned(
-              top: 49,
+              top: 80,
               left: MediaQuery.of(context).size.width * 0.25,
               child: Text(
                 'WordeX',
@@ -189,7 +189,7 @@ Future<void> _showLocalNotification(String title, String body) async {
             ),
             // Logo Image
             Positioned(
-              top: 130,
+              top: 180,
               left: MediaQuery.of(context).size.width * 0.17,
               child: Image.asset(
                 'assets/logo.png',
@@ -202,7 +202,7 @@ Future<void> _showLocalNotification(String title, String body) async {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const SizedBox(height: 320),
+                    const SizedBox(height: 480),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                       margin: EdgeInsets.symmetric(horizontal: 0),

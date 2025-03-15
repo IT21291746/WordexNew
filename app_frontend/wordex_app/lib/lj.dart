@@ -1,84 +1,56 @@
-// ignore_for_file: library_private_types_in_public_api, unused_field
+// ignore_for_file: library_private_types_in_public_api, unused_field, avoid_print, prefer_final_fields
 
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wordex_app/home.dart';
+import 'package:flutter/material.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 import 'package:wordex_app/wj.dart';
+
 
 class Lj extends StatefulWidget {
   final Map<String, String> userDetails;
-   final Map<String, dynamic> summaryDetails;
-   final Map<String, dynamic> racSummaryDetails;
+  final Map<String, dynamic> summaryDetails;
+  final Map<String, dynamic> racSummaryDetails;
 
-  const Lj({super.key, required this.userDetails, required this.summaryDetails, required this.racSummaryDetails});
+  const Lj({
+    super.key,
+    required this.userDetails,
+    required this.summaryDetails,
+    required this.racSummaryDetails,
+  });
 
   @override
   _LjState createState() => _LjState();
 }
 
 class _LjState extends State<Lj> {
-  int _currentQuestionIndex = -2; // -2 for loading, -1 for countdown
+  int _currentQuestionIndex = -2;
   int _timeLeft = 30;
   int _totalCorrect = 0;
   int _totalTimeSpent = 0;
   Timer? _timer;
+  List<Map<String, dynamic>> _questions = [];
+  List<Map<String, dynamic>> _results = [];
+  String _recognizedText = "";
+  List<Offset> _currentStroke = [];
+  List<List<Offset>> _strokes = [];
+  File? _savedImage;
+  String _correctAnswer = "";
 
-  final List<Map<String, dynamic>> _questions = [
-    {"question": "What is 5 + 3?", "options": ["6", "7", "8", "9"], "answer": "8"},
-    {"question": "What is the capital of France?", "options": ["London", "Berlin", "Paris", "Rome"], "answer": "Paris"},
-    {"question": "Which planet is closest to the sun?", "options": ["Earth", "Mercury", "Mars", "Venus"], "answer": "Mercury"},
-    {"question": "What is 12 / 4?", "options": ["2", "3", "4", "6"], "answer": "3"},
-    {"question": "Which is a programming language?", "options": ["Java", "Banana", "Car", "Lion"], "answer": "Java"},
-  ];
-
-  final List<Map<String, dynamic>> _results = [];
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timeLeft = 30;
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_timeLeft > 0) {
-        setState(() => _timeLeft--);
-      } else {
-        _submitAnswer(null);
-      }
-    });
-  }
-
-  void _submitAnswer(String? selectedOption) {
-    _timer?.cancel();
-    bool isCorrect = selectedOption == _questions[_currentQuestionIndex]["answer"];
-    if (isCorrect) _totalCorrect++;
-    _totalTimeSpent += (30 - _timeLeft);
-
-    _results.add({
-      "question": "Q0${_currentQuestionIndex + 1}",
-      "correct": isCorrect ? "Correct" : "Wrong",
-      "time": 30 - _timeLeft,
-    });
-
-    if (_currentQuestionIndex < _questions.length - 1) {
-      setState(() {
-        _currentQuestionIndex++;
-        _startTimer();
-      });
-    } else {
-      setState(() => _currentQuestionIndex = -3); // Show summary
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       setState(() => _currentQuestionIndex = -1);
-      Future.delayed(Duration(seconds: 4), () {
-        setState(() {
-          _currentQuestionIndex = 0;
-          _startTimer();
-        });
-      });
+      _fetchQuestions();
     });
   }
 
@@ -87,6 +59,41 @@ class _LjState extends State<Lj> {
     _timer?.cancel();
     super.dispose();
   }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timeLeft = 30;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timeLeft > 0) {
+        setState(() => _timeLeft--);
+      } else {
+        _submitAnswer(null);
+      }
+    });
+  }
+
+  Future<void> _fetchQuestions() async {
+    try {
+      final response = await http.get(Uri.parse('http://172.20.10.2:8080/ljq/random'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _questions = data.map((q) => {"question": q["question"], "answer": q["answer"]}).toList();
+        });
+        Future.delayed(const Duration(seconds: 3), () {
+          setState(() {
+            _currentQuestionIndex = 0;
+                      _correctAnswer = _questions[_currentQuestionIndex]['answer'];  
+
+            _startTimer();
+          });
+        });
+      }
+    } catch (e) {
+      print("Error fetching questions: $e");
+    }
+  }
+
 
   Widget _buildSummary() {
   return Padding(
@@ -99,6 +106,7 @@ class _LjState extends State<Lj> {
           style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 20),
+        
                         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child:DataTable(
@@ -117,19 +125,9 @@ class _LjState extends State<Lj> {
         ),
                         ),
         SizedBox(height: 20),
-        Text(
-          "Total Correct: $_totalCorrect",
-          style: GoogleFonts.poppins(fontSize: 18),
-        ),
-        Text(
-          "Total Time: $_totalTimeSpent s",
-          style: GoogleFonts.poppins(fontSize: 18),
-        ),
-                  
-SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-// Construct the summary with Q1-Q5 values
+              // Construct the summary with Q1-Q5 values
 Map<String, int> ljSummaryDetails = {};
 for (int i = 0; i < _results.length; i++) {
   ljSummaryDetails["Q${i + 1}"] = _results[i]["correct"] == "Correct" ? 1 : 0;
@@ -154,45 +152,184 @@ Navigator.pushReplacement(
             },
             child: Text("Continue", style: GoogleFonts.poppins(fontSize: 18)),
           ),
-          
+        
       ],
     ),
   );
 }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple.shade100,
-      body: Column(
+void _submitAnswer(String? selectedOption) {
+  _timer?.cancel();
+  bool isCorrect = _recognizedText == _correctAnswer;
+  if (isCorrect) _totalCorrect++;
+  _totalTimeSpent += (30 - _timeLeft);
+
+  _results.add({
+    "question": "Q0${_currentQuestionIndex + 1}",
+    "correct": isCorrect ? "Correct" : "Wrong",
+    "time": 30 - _timeLeft,
+  });
+
+  if (_currentQuestionIndex < _questions.length - 1) {
+    setState(() {
+      _currentQuestionIndex++;
+              _correctAnswer = _questions[_currentQuestionIndex]['answer'];  
+                      _recognizedText = "";
+      _startTimer();
+      _clearDrawing();
+    });
+  } else {
+    setState(() => _currentQuestionIndex = -3);
+  }
+}
+
+  void _clearDrawing() {
+    setState(() {
+      _strokes.clear();
+      _currentStroke.clear();
+      _recognizedText = "";
+      _savedImage = null;
+    });
+  }
+
+  Future<void> _recognizeText() async {
+    if (_strokes.isEmpty) return;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 5.0 // 🔥 Reduced for better accuracy
+      ..style = PaintingStyle.stroke;
+
+    // ✅ White Background & Padding for better OCR recognition
+    final backgroundPaint = Paint()..color = Colors.white;
+    canvas.drawRect(const Rect.fromLTWH(10, 10, 580, 580), backgroundPaint);
+
+    for (var stroke in _strokes) {
+      for (int i = 0; i < stroke.length - 1; i++) {
+        canvas.drawLine(stroke[i], stroke[i + 1], paint);
+      }
+    }
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(600, 600);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final buffer = byteData!.buffer.asUint8List();
+
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+    File file = File(filePath);
+    await file.writeAsBytes(buffer);
+
+    // ✅ Load Image for Advanced Preprocessing
+    img.Image decodedImage = img.decodeImage(await file.readAsBytes())!;
+
+    // ✅ 1. Flip Image (Fixes "M" vs. "W" issue)
+    decodedImage = img.flipVertical(decodedImage);
+
+    // ✅ 2. Convert to Grayscale (Removes background noise)
+    decodedImage = img.grayscale(decodedImage);
+
+    // ✅ 3. Apply Adaptive Thresholding (Improves contrast)
+    decodedImage = img.adjustColor(decodedImage, contrast: 180);
+
+    // ✅ 4. Denoise Image (Removes artifacts for clearer letters)
+    decodedImage = img.gaussianBlur(decodedImage, radius: 1);
+
+    // ✅ 5. Edge Detection (Enhances boundaries)
+    decodedImage = img.sobel(decodedImage);
+
+    // ✅ 6. Rotate correction (if needed)
+    decodedImage = img.copyRotate(decodedImage, angle: 0);
+
+    // Save the processed image
+    file = File(filePath)..writeAsBytesSync(img.encodePng(decodedImage));
+
+    // Store the image file for display
+    setState(() {
+      _savedImage = file;
+    });
+
+    // ✅ OCR Recognition with Custom Filtering
+    final inputImage = InputImage.fromFilePath(file.path);
+    final textRecognizer = TextRecognizer();
+    final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+
+    setState(() {
+      String text = recognizedText.text.trim();
+      if (text.isNotEmpty) {
+        _recognizedText = text.toUpperCase();
+      } else {
+        _recognizedText = "Try Again";
+      }
+    });
+
+    await textRecognizer.close();
+  }
+
+
+
+
+
+  Widget _buildQuestion() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: IconButton(
-                icon: Icon(Icons.house_sharp, color: Colors.red, size: 40),
-                onPressed: () => _showExitConfirmation(),
+          Text(
+            "Q0${_currentQuestionIndex + 1}: ${_questions[_currentQuestionIndex]['question']}",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+                    const SizedBox(height: 20),
+          Text("${_questions[_currentQuestionIndex]['answer']}", style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onPanStart: (details) {
+              _currentStroke = [details.localPosition];
+            },
+            onPanUpdate: (details) {
+              setState(() {
+                _currentStroke.add(details.localPosition);
+              });
+            },
+            onPanEnd: (details) {
+              if (_currentStroke.isNotEmpty) {
+                setState(() {
+                  _strokes.add(List.from(_currentStroke));
+                  _currentStroke.clear();
+                });
+              }
+            },
+            child: CustomPaint(
+              size: const Size(300, 300),
+              painter: SignaturePainter(_strokes, _currentStroke),
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
               ),
             ),
           ),
-          Expanded(
-            child: Center(
-              child: _currentQuestionIndex == -2
-                  ? _buildLoadingScreen()
-                  : _currentQuestionIndex == -1
-                      ? _buildCountdown()
-                      : _currentQuestionIndex == -3
-                          ? _buildSummary()
-                          : _buildQuestion(),
-            ),
-          ),
+                        ElevatedButton(
+                onPressed: _recognizeText,
+                child: const Text("Recognize"),
+              ),
+          ElevatedButton(onPressed: _clearDrawing, child: const Text("Clear")),
+          const SizedBox(height: 10),
+          Text("Recognized Letter is   $_recognizedText", style: const TextStyle(fontSize: 20)),
+          const SizedBox(height: 20),
+          ElevatedButton(onPressed: () => _submitAnswer(_recognizedText), child: const Text("Submit")),
+          Text("Time left: $_timeLeft seconds", style: const TextStyle(fontSize: 18)),
         ],
       ),
     );
   }
 
+
+  
   Widget _buildLoadingScreen() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -222,58 +359,58 @@ Navigator.pushReplacement(
     );
   }
 
-  Widget _buildQuestion() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.deepPurple.shade100,
+      body: Column(
         children: [
-          Text("Q0${_currentQuestionIndex + 1}: ${_questions[_currentQuestionIndex]['question']}",
-              style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold)),
-          SizedBox(height: 20),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _questions[_currentQuestionIndex]['options'].map<Widget>((option) =>
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
-                  child: ElevatedButton(
-                    onPressed: () => _submitAnswer(option),
-                    child: Text(option, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 18)),
-                  ),
-                )).toList(),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: IconButton(
+                icon: const Icon(Icons.house_sharp, color: Colors.red, size: 40),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
           ),
-          SizedBox(height: 20),
-          Text("Time Left: $_timeLeft s", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+          Expanded(
+            child: Center(
+              child: _currentQuestionIndex == -2
+                  ? _buildLoadingScreen()
+                  : _currentQuestionIndex == -1
+                      ? _buildCountdown()
+                  : _currentQuestionIndex == -3
+                          ? _buildSummary()
+                      : _buildQuestion(),
+            ),
+          ),
         ],
       ),
     );
   }
-
-void _showExitConfirmation() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("Exit Lj"),
-      content: Text("Are you sure you want to exit?"),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context), 
-          child: Text("No")
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MyHome(userDetails: widget.userDetails),
-              ),
-            );
-          },
-          child: Text("Yes"),
-        ),
-      ],
-    ),
-  );
 }
+
+class SignaturePainter extends CustomPainter {
+  final List<List<Offset>> strokes;
+  final List<Offset> currentStroke;
+  SignaturePainter(this.strokes, this.currentStroke);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 5.0
+      ..style = PaintingStyle.stroke;
+    for (var stroke in strokes) {
+      for (int i = 0; i < stroke.length - 1; i++) {
+        canvas.drawLine(stroke[i], stroke[i + 1], paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

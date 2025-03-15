@@ -36,8 +36,14 @@ class _RacState extends State<Rac> {
   @override
   void initState() {
     super.initState();
+        Future.delayed(const Duration(seconds: 3), () {
+
     _speech = stt.SpeechToText();
+    setState(() => _currentQuestionIndex = -1);
+
     _fetchQuestions();
+
+        });
   }
 
   Future<void> _requestPermission() async {
@@ -121,15 +127,51 @@ class _RacState extends State<Rac> {
         List<dynamic> data = jsonDecode(response.body);
         setState(() {
           _questions = data.map((q) => {"question": q["question"], "answer": q["answer"]}).toList();
-          _currentQuestionIndex = 0;
-          _correctAnswer = _questions[_currentQuestionIndex]['answer'];  // Initialize correct answer
-          _startTimer();
+        });
+        Future.delayed(const Duration(seconds: 3), () {
+          setState(() {
+            _currentQuestionIndex = 0;
+            _correctAnswer = _questions[_currentQuestionIndex]['answer'];  
+            _startTimer();
+          });
         });
       }
     } catch (e) {
       print("Error fetching questions: $e");
     }
   }
+
+
+   
+  Widget _buildLoadingScreen() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset('assets/logoSmall.png', height: 100),
+        SizedBox(height: 20),
+        Text("Round 02", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
+        Text(".... Test Round", style: GoogleFonts.poppins(fontSize: 18)),
+        SizedBox(height: 20),
+        CircularProgressIndicator(color: Colors.deepPurple),
+      ],
+    );
+  }
+
+  Widget _buildCountdown() {
+    return TweenAnimationBuilder(
+      tween: Tween(begin: 3.0, end: 0.0),
+      duration: Duration(seconds: 3),
+      builder: (context, value, child) {
+        return Center(
+          child: Text(
+            value.toInt() == 0 ? "Go!" : value.toInt().toString(),
+            style: GoogleFonts.poppins(fontSize: 50, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+          ),
+        );
+      },
+    );
+  }
+
 
   void _startTimer() {
     _timer?.cancel();
@@ -286,14 +328,30 @@ class _RacState extends State<Rac> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade100,
-      body: Center(
-        
-        child: _currentQuestionIndex == -2
-            ? const CircularProgressIndicator()
-            : _currentQuestionIndex == -3
-                ? _buildSummary()
-                : _buildQuestion(),
-                
+      body: Column(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: IconButton(
+                icon: const Icon(Icons.house_sharp, color: Colors.red, size: 40),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: _currentQuestionIndex == -2
+                  ? _buildLoadingScreen()
+                  : _currentQuestionIndex == -1
+                      ? _buildCountdown()
+                  : _currentQuestionIndex == -3
+                          ? _buildSummary()
+                      : _buildQuestion(),
+            ),
+          ),
+        ],
       ),
     );
   }

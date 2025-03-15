@@ -114,7 +114,6 @@ class _LetterRecognitionPageState extends State<LetterRecognitionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Draw a Letter')),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
