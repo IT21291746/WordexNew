@@ -24,10 +24,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void initState() {
     super.initState();
+            Future.delayed(const Duration(seconds: 3), () {
+
     _controller = VideoPlayerController.network(widget.videoUrl)
       ..initialize().then((_) {
         setState(() {});
       });
+              });
   }
 
   @override
@@ -109,8 +112,8 @@ class _QuizState extends State<Quiz> {
             "qAudioUrl": q["qAudioUrl"],
             "qVideoUrl": q["qVideoUrl"]
           }).toList();
-          _currentQuestionIndex = -1;
-          Future.delayed(Duration(seconds: 4), () {
+          //_currentQuestionIndex = -1;
+          Future.delayed(Duration(seconds: 3), () {
             setState(() {
               _currentQuestionIndex = 0;
               _startTimer();

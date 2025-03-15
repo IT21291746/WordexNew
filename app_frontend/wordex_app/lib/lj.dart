@@ -102,7 +102,7 @@ class _LjState extends State<Lj> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Lj Summary",
+          "Quiz Summary",
           style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 20),
@@ -284,7 +284,7 @@ void _submitAnswer(String? selectedOption) {
             style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold),
           ),
                     const SizedBox(height: 20),
-          Text("${_questions[_currentQuestionIndex]['answer']}", style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          Text("${_questions[_currentQuestionIndex]['answer']}", style: const TextStyle(fontSize: 65, color: Colors.green)),
           const SizedBox(height: 20),
           GestureDetector(
             onPanStart: (details) {
@@ -337,7 +337,7 @@ void _submitAnswer(String? selectedOption) {
         Image.asset('assets/logoSmall.png', height: 100),
         SizedBox(height: 20),
         Text("Round 03", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
-        Text(".... Test Round", style: GoogleFonts.poppins(fontSize: 18)),
+        Text("Letter Identification Test Round", style: GoogleFonts.poppins(fontSize: 18)),
         SizedBox(height: 20),
         CircularProgressIndicator(color: Colors.deepPurple),
       ],

@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, avoid_print
 // ignore_for_file: library_private_types_in_public_api, unused_field
 
 import 'dart:async';
@@ -37,7 +37,11 @@ class _WjState extends State<Wj> {
     @override
   void initState() {
     super.initState();
+            Future.delayed(const Duration(seconds: 3), () {
+
     _fetchQuestions();
+
+            });
   }
 
 
@@ -58,7 +62,7 @@ class _WjState extends State<Wj> {
             "qVideoUrl": q["qVideoUrl"]
           }).toList();
           _currentQuestionIndex = -1;
-          Future.delayed(Duration(seconds: 4), () {
+          Future.delayed(Duration(seconds: 3), () {
             setState(() {
               _currentQuestionIndex = 0;
               _startTimer();
@@ -116,6 +120,17 @@ void _submitAnswer(String? selectedOption) {
       backgroundColor: Colors.deepPurple.shade100,
       body: Column(
         children: [
+
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: IconButton(
+                icon: const Icon(Icons.house_sharp, color: Colors.red, size: 40),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
           Expanded(
             child: Center(
               child: _currentQuestionIndex == -2
@@ -164,7 +179,7 @@ Widget _buildQuestion() {
           children: question['options']
               .map<Widget>(
                 (option) => SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
+                  width: MediaQuery.of(context).size.width * 0.90,
                   child: ElevatedButton(
                     onPressed: () => _submitAnswer(option),
                     child: Text(
@@ -215,7 +230,7 @@ Widget _buildQuestion() {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Wj Summary",
+          "Quiz Summary",
           style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 20),
@@ -290,7 +305,7 @@ Navigator.pushReplacement(
         Image.asset('assets/logoSmall.png', height: 100),
         SizedBox(height: 20),
         Text("Round 04", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
-        Text(".... Test Round", style: GoogleFonts.poppins(fontSize: 18)),
+        Text("Words Matching Round", style: GoogleFonts.poppins(fontSize: 18)),
         SizedBox(height: 20),
         CircularProgressIndicator(color: Colors.deepPurple),
       ],

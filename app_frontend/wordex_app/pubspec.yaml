@@ -72,6 +72,13 @@ flutter:
   assets:
     - assets/
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logoSmall.png"  # Path to your logo image
+  adaptive_icon_foreground: "assets/logoSmall.png"  # For Android adaptive icon
+  adaptive_icon_background: "assets/logoSmall.png"  # Background for adaptive icon    
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

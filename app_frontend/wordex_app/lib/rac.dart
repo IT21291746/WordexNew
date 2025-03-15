@@ -150,7 +150,7 @@ class _RacState extends State<Rac> {
         Image.asset('assets/logoSmall.png', height: 100),
         SizedBox(height: 20),
         Text("Round 02", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
-        Text(".... Test Round", style: GoogleFonts.poppins(fontSize: 18)),
+        Text("Speaking Test Round", style: GoogleFonts.poppins(fontSize: 18)),
         SizedBox(height: 20),
         CircularProgressIndicator(color: Colors.deepPurple),
       ],
@@ -261,7 +261,7 @@ class _RacState extends State<Rac> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Rac Summary",
+          "Quiz Summary",
           style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 20),
