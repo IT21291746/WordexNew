@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wordex_app/floating_letters.dart';
 import 'package:wordex_app/logoloading.dart';
 import 'package:wordex_app/notifications.dart';
 import 'package:wordex_app/profile.dart';
 import 'package:wordex_app/quizhistory.dart';
 import 'package:wordex_app/activities.dart';
+
 
 
 class MyHome extends StatefulWidget {
@@ -115,9 +117,12 @@ Widget buildHomePage() {
   return SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(16.0),
+      
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        
         children: [
+                  // const FloatingLettersBackground(), 
           Container(
             decoration: BoxDecoration(
               color: Colors.black87,
@@ -131,23 +136,24 @@ Widget buildHomePage() {
       ),
     ),
             ),
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(10),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Welcome to Worex', style: TextStyle(color: Colors.white70)),
-                SizedBox(height: 10),
-                Text('',
+                Center(),
+                Text('Welcome to Worex', style: TextStyle(color: Colors.white70 , fontSize: 42, fontWeight: FontWeight.bold)),
+                
+                SizedBox(height: 30),
+                Text('Wordex is a mobile app designed to identify dyslexia and provide effective solutions. Using the button below, you can take a test to check for signs of dyslexia and explore ways to overcome its challenges.',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text('Click here to get started',
-                    style: TextStyle(color: Colors.white54, fontSize: 16)),
+                        color: Colors.amber,
+                        fontSize: 18)),
                 SizedBox(height: 20),
+                Text('Click Below to get started with Diagnosis',
+                    style: TextStyle(color: Colors.white70, fontSize: 16)),
+                SizedBox(height: 30),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
 ElevatedButton.icon(
   onPressed: () {
@@ -159,7 +165,7 @@ ElevatedButton.icon(
     );
   },
   icon: Icon(Icons.arrow_circle_right_outlined),
-  label: Text('Get Started'),
+  label: Text('Start Test' , style: TextStyle(color: Colors.purple, fontSize: 20)),
 ),
                   ],
                 ),
@@ -167,18 +173,15 @@ ElevatedButton.icon(
             ),
           ),
           SizedBox(height: 20),
-          Text('Upcoming Events', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('Recommended for you', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                PaymentTile(title: 'Netflix', amount: '\$16.56', icon: Icons.video_library),
-                PaymentTile(title: 'Apple One', amount: '\$20.98', icon: Icons.apple),
-                PaymentTile(title: 'Spotify', amount: '\$9.99', icon: Icons.music_note),
-                PaymentTile(title: 'Amazon Prime', amount: '\$14.99', icon: Icons.local_mall),
-                PaymentTile(title: 'Disney+', amount: '\$7.99', icon: Icons.movie),
-                PaymentTile(title: 'YouTube Premium', amount: '\$11.99', icon: Icons.play_circle_fill),
+                PaymentTile(title: 'Word Activities', icon: Icons.wordpress),
+                PaymentTile(title: 'Reading Activities', icon: Icons.voice_chat),
+                PaymentTile(title: 'Speling Activities', icon: Icons.music_note),
               ],
             ),
           ),
@@ -206,10 +209,10 @@ ElevatedButton.icon(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                EventTile(title: 'Flutter Conference', date: 'March 15, 2024 - 10:00 AM', icon: Icons.event),
-                EventTile(title: 'AI Workshop', date: 'April 5, 2024 - 2:00 PM', icon: Icons.event),
+                EventTile(title: 'Wordex New Software Update', date: 'March 15, 2024 - 10:00 AM', icon: Icons.event),
+                EventTile(title: 'Wordex Rewards', date: 'April 5, 2024 - 2:00 PM', icon: Icons.event),
                 EventTile(title: 'Tech Meetup', date: 'March 22, 2024 - 6:00 PM', icon: Icons.event),
-                EventTile(title: 'AI Workshop', date: 'April 5, 2024 - 2:00 PM', icon: Icons.event),
+                EventTile(title: 'Workshop', date: 'April 5, 2024 - 2:00 PM', icon: Icons.event),
               ],
             ),
           ),
@@ -222,10 +225,9 @@ ElevatedButton.icon(
 
 class PaymentTile extends StatelessWidget {
   final String title;
-  final String amount;
   final IconData icon;
 
-  const PaymentTile({super.key, required this.title, required this.amount, required this.icon});
+  const PaymentTile({super.key, required this.title, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +255,6 @@ class PaymentTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text(amount, style: TextStyle(fontSize: 14, color: Colors.grey)),
               ],
             ),
           ],
