@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wordex_app/floating_letters.dart';
 import 'package:wordex_app/logoloading.dart';
 import 'package:wordex_app/notifications.dart';
 import 'package:wordex_app/profile.dart';
@@ -116,13 +115,12 @@ class _MyHomeState extends State<MyHome> {
 Widget buildHomePage() {
   return SingleChildScrollView(
     child: Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(20.0),
       
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         
         children: [
-                  // const FloatingLettersBackground(), 
           Container(
             decoration: BoxDecoration(
               color: Colors.black87,
@@ -140,7 +138,6 @@ Widget buildHomePage() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Center(),
                 Text('Welcome to Worex', style: TextStyle(color: Colors.white70 , fontSize: 42, fontWeight: FontWeight.bold)),
                 
                 SizedBox(height: 30),
